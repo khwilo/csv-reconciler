@@ -1,25 +1,34 @@
 import argparse
 import csv
+import sys
 
 # Read data from CSV file
 def read_from_csv(file_path):
   data = []
-  with open(file_path, mode='r') as csv_file:
-    csv_reader = csv.DictReader(csv_file)
-    for row in csv_reader:
-      non_leading_space_row = remove_trailing_whitespaces(row)
-      case_insensitive_row = make_dict_values_case_insensitive(non_leading_space_row)
-      data.append(case_insensitive_row)
+  try:
+    with open(file_path, mode='r') as csv_file:
+      csv_reader = csv.DictReader(csv_file)
+      for row in csv_reader:
+        non_leading_space_row = remove_trailing_whitespaces(row)
+        case_insensitive_row = make_dict_values_case_insensitive(non_leading_space_row)
+        data.append(case_insensitive_row)
+  except FileNotFoundError:
+    print(f"File '{file_path}' not found. Please provide a valid file path.")
+    sys.exit(1)
   
   return data
 
 # Write data from CSV file
 def write_to_csv(data, file_path):
-  with open(file_path, mode='w') as csv_file:
-    field_names = ['Type', 'Record Identifier', 'Field', 'Source Value', 'Target Value']
-    writer = csv.DictWriter(csv_file, fieldnames=field_names)
-    writer.writeheader()
-    writer.writerows(data)
+  try:
+    with open(file_path, mode='w') as csv_file:
+      field_names = ['Type', 'Record Identifier', 'Field', 'Source Value', 'Target Value']
+      writer = csv.DictWriter(csv_file, fieldnames=field_names)
+      writer.writeheader()
+      writer.writerows(data)
+  except FileNotFoundError:
+    print(f"File '{file_path}' not found. Please provide a valid file path.")
+    sys.exit(1)
 
 # compare data and check for mismatches
 def compare_data(source, target):
