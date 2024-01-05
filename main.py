@@ -18,12 +18,29 @@ def compare_data(source, target):
 
   missing_in_source = target_ids.difference(source_ids)
   missing_in_target = source_ids.difference(target_ids)
+  similar_ids = source_ids.intersection(target_ids)
 
   for missing_id in missing_in_target:
     mismatches.append({'Type': 'Missing in Target', 'Record Identifier': missing_id})
 
   for missing_id in missing_in_source:
-    mismatches.append({'Type': 'Missing in Target', 'Record Identifier': missing_id})
+    mismatches.append({'Type': 'Missing in Source', 'Record Identifier': missing_id})
+
+  for similar_id in similar_ids:
+    source_v2 = {}
+    target_v2 = {}
+
+    for row in source:
+      if row['ID'] == similar_id:
+        source_v2 = row
+
+    for row in target:
+      if row['ID'] == similar_id:
+        target_v2 = row
+
+    for key in source_v2.keys():
+      if source_v2[key] != target_v2[key]:
+        mismatches.append({'Type': 'Field Discrepancy', 'Record Identifier': similar_id, 'Field': key, 'Source Value': source_v2[key], 'Target Value': target_v2[key]})
 
   return mismatches
 
