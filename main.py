@@ -7,11 +7,15 @@ def read_from_csv(file_path):
   data = []
   try:
     with open(file_path, mode='r') as csv_file:
-      csv_reader = csv.DictReader(csv_file)
-      for row in csv_reader:
-        non_leading_space_row = remove_trailing_whitespaces(row)
-        case_insensitive_row = make_dict_values_case_insensitive(non_leading_space_row)
-        data.append(case_insensitive_row)
+      try:
+        csv_reader = csv.DictReader(csv_file)
+        for row in csv_reader:
+          non_leading_space_row = remove_trailing_whitespaces(row)
+          case_insensitive_row = make_dict_values_case_insensitive(non_leading_space_row)
+          data.append(case_insensitive_row)
+      except csv.Error as csv_exception:
+        print(f"Could not read CSV file '{file_path}: {csv_exception}'")
+        sys.exit(1)
   except FileNotFoundError:
     print(f"File '{file_path}' not found. Please provide a valid file path.")
     sys.exit(1)
