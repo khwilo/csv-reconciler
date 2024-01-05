@@ -1,3 +1,4 @@
+import argparse
 import csv
 
 # Read data from CSV file
@@ -23,6 +24,7 @@ def write_to_csv(data, file_path):
 # compare data and check for mismatches
 def compare_data(source, target):
   mismatches = []
+  field_discrepancies_count = 0
   source_ids = {record['ID'] for record in source} # fetch source IDs
   target_ids = {record['ID'] for record in target} # fetch target IDs
 
@@ -40,8 +42,13 @@ def compare_data(source, target):
     # check for any mismatches between the source and target dictionaries
     for key in source_v2.keys():
       if source_v2[key] != target_v2[key]:
+        field_discrepancies_count += 1
         mismatches.append({'Type': 'Field Discrepancy', 'Record Identifier': similar_id, 'Field': key, 'Source Value': source_v2[key], 'Target Value': target_v2[key]})
 
+  print('Reconciliation completed:')
+  print(f'- Records missing in target: {len(missing_in_target)}')
+  print(f'- Records missing in source: {len(missing_in_source)}')
+  print(f' -Records with field discrepancies: {field_discrepancies_count}')
   return mismatches
 
 # Remove leading & trailing whitespaces from dictionary values
@@ -57,7 +64,17 @@ def populate_missing_ids(field_identifier, diff_set, mismatch_records):
   for missing_id in diff_set:
     mismatch_records.append({'Type': field_identifier, 'Record Identifier': missing_id})
 
-source_data = read_from_csv('source.csv')
-target_data = read_from_csv('target.csv')
-discrepancies = compare_data(source_data, target_data)
-write_to_csv(discrepancies, 'reconciliation_report.csv')
+if __name__ == "__main__":
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-s", "--source", required=True, help="path to the source CSV file")
+  parser.add_argument("-t", "--target", required=True, help="path to the target CSV file")
+  parser.add_argument("-o", "--output", required=True, help="path to save the output reconciliation report")
+
+  args = parser.parse_args()
+
+  source_data = read_from_csv(args.source)
+  target_data = read_from_csv(args.target)
+  discrepancies = compare_data(source_data, target_data)
+  write_to_csv(discrepancies, args.output)
+  print('\nReport saved to:', args.output)
+
