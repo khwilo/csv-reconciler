@@ -1,6 +1,6 @@
 import csv
 
-def read_csv(file_path):
+def read_from_csv(file_path):
   data = []
   with open(file_path, mode='r') as csv_file:
     csv_reader = csv.DictReader(csv_file)
@@ -10,6 +10,14 @@ def read_csv(file_path):
       data.append(case_insensitive_row)
   
   return data
+
+def write_to_csv(data, file_path):
+  with open(file_path, mode='w') as csv_file:
+    field_names = ['Type', 'Record Identifier', 'Field', 'Source Value', 'Target Value']
+    writer = csv.DictWriter(csv_file, fieldnames=field_names)
+    writer.writeheader()
+    writer.writerows(data)
+  
 
 def compare_data(source, target):
   mismatches = []
@@ -44,7 +52,7 @@ def compare_data(source, target):
 
   return mismatches
 
-source_data = read_csv('source.csv')
-target_data = read_csv('target.csv')
-
+source_data = read_from_csv('source.csv')
+target_data = read_from_csv('target.csv')
 discrepancies = compare_data(source_data, target_data)
+write_to_csv(discrepancies, 'reconciliation_report.csv')
